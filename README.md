@@ -1,4 +1,4 @@
-# novelparse
+# novelparse.js
 ウェブ小説の文書を HTML に変換する JavaScript のライブラリです。
 
 ## 目次

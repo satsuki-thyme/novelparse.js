@@ -1,0 +1,37 @@
+<textarea id="input" class="textarea" placeholder="インプット"></textarea>
+<textarea id="output" class="textarea" placeholder="アウトプット"></textarea>
+<input type="button" id="reset" value="リセット">
+<script src="novelparse.js" charset="utf-8"></script>
+<script>
+let elm_input = document.getElementById("input")
+let elm_output = document.getElementById("output")
+let elm_reset = document.getElementById("reset")
+elm_input.oninput = () => {
+  elm_output.value = novelparse(elm_input.value)
+  elm_output.select()
+}
+elm_reset.onclick = () => {
+  elm_input.value = ""
+  elm_output.value = ""
+}
+</script>
+<style>
+body {
+  width: 600px;
+  margin: auto;
+  padding-top: 100px;
+}
+.textarea {
+  width: 49%;
+  height: 170px;
+  padding: 10px;
+  box-sizing: border-box;
+  outline: none;
+}
+.textarea + .textarea {
+  margin-left: 1%;
+}
+#reset {
+  width: 100%;
+}
+</style>

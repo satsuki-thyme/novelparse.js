@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+  <head>
+    <meta charset="utf-8">
+    <title>novelparse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="novelparse.js"></script>
+    <style>
+      body{
+        color: #1e1f1c;
+        background-color: #f1eee9;
+      }
+      #container {
+        position: absolute;
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        padding: 50px;
+        box-sizing: border-box;
+      }
+      #textarea {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        color: #30312d;
+        background-color: #faf4ec;
+        border: 1px solid #484944;
+        outline: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        body{
+          color: #f1eee9;
+          background-color: #1e1f1c;
+        }
+        #textarea {
+          color: #f1eee9;
+          background-color: #30312d;
+          border: 1px solid #484944;
+        }
+      }
+      html.dark body{
+        color: #f1eee9;
+        background-color: #1e1f1c;
+      }
+      html.dark #textarea {
+        color: #f1eee9;
+        background-color: #30312d;
+        border: 1px solid #484944;
+      }
+      html.light body{
+        color: #1e1f1c;
+        background-color: #f1eee9;
+      }
+      html.light #textarea {
+        color: #30312d;
+        background-color: #faf4ec;
+        border: 1px solid #484944;
+      }
+    </style>
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        let ndl_newLineMode = document.querySelectorAll(`[name="new-line-mode"]`)
+        let newLineMode = Array.from(ndl_newLineMode).filter(rly => rly.checked === true)[0].value
+        let elm_textarea = document.getElementById("textarea")
+        let elm_container = document.getElementById("container")
+        elm_textarea.style.height = elm_textarea.getBoundingClientRect().width * (9 / 16) + "px"
+        elm_container.style.height = elm_container.getBoundingClientRect().height + "px"
+        elm_container.style.inset = 0
+        elm_textarea.oninput = () => {
+          elm_textarea.value = novelparse(elm_textarea.value, newLineMode)
+          elm_textarea.select()
+        }
+        elm_textarea.onclick = () => {
+          elm_textarea.value = ""
+        }
+        Array.from(ndl_newLineMode).map(rly => {
+          rly.onchange = () => {
+            newLineMode = rly.value
+          }
+        })
+      })
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <label><input name="new-line-mode" type="radio" class="new-line-mode" value="normal" checked>通常の改行処理</label>
+      <label><input name="new-line-mode" type="radio" class="new-line-mode" value="few">改行を 1 個ずつ減らす</label>
+      <textarea id="textarea" placeholder="インプット / アウトプット"></textarea>
+    </div>
+  </body>
+</html>

@@ -11,7 +11,7 @@ function novelparse(src, newLineMode) {
     eol = "\n"
     work.replace(/\r?\n/g, eol)
   }
-  let rx0 = new RegExp(`(?<=.+)(${eol}+)(?=.+)`, "g")
+  let rx0 = new RegExp(`${eol}+`, "g")
   work = work
   .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
   .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)《(.+?)》/g, '<ruby>$1<rt>$2</rt></ruby>')

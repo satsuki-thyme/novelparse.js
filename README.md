@@ -18,3 +18,6 @@
 ## 動作
 * ファイル内の各行を p タグでくくります
 * 第 2 引数に "few" を与えると改行を 1 個減らします。つまり隣り合う文は連結されて 1 行になります。 1 行間隔を空けた文は間隔がなくなって隣り合います。 2 行間隔を空けたものは 1 行の間隔になります
+
+## CDN
+https://cdn.jsdelivr.net/gh/satsuki-thyme/novelparse.js@main/novelparse.min.js

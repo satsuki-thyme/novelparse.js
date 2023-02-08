@@ -60,7 +60,7 @@
     <script>
       window.addEventListener("DOMContentLoaded", () => {
         let ndl_newLineMode = document.querySelectorAll(`[name="new-line-mode"]`)
-        let newLineMode = Array.from(ndl_newLineMode).filter(rly => rly.checked === true)[0].value
+        let newLineMode = Array.from(ndl_newLineMode).filter(rly => rly.checked)[0].value
         let elm_textarea = document.getElementById("textarea")
         let elm_container = document.getElementById("container")
         elm_textarea.style.height = elm_textarea.getBoundingClientRect().width * (9 / 16) + "px"

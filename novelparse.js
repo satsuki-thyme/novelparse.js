@@ -11,7 +11,7 @@ function novelparse(src, newLineMode, parseMode) {
     eol = "\n"
     work.replace(/\r?\n/g, eol)
   }
-  let rx0 = new RegExp(`${eol}+`, "g")
+  let rx0 = new RegExp(`${eol}(${eol}*)`, "g")
   if (parseMode === undefined || parseMode === true) {
       work = work
     .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
@@ -25,9 +25,7 @@ function novelparse(src, newLineMode, parseMode) {
   }
   if (newLineMode === "few") {
     work = work
-    .replace(rx0, rly => {
-        return rly.replace(eol, ``)
-    })
+    .replace(rx0, "$1")
   }
   return work
   .split(eol)

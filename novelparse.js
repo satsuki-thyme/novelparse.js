@@ -1,4 +1,4 @@
-function novelparse(src, newLineMode, parseMode) {
+function novelparse(src, newLineMode, rubyMode) {
   let eol = ""
   let work = src
   let newlineRn = src.match(/\r\n/)
@@ -11,21 +11,27 @@ function novelparse(src, newLineMode, parseMode) {
     eol = "\n"
     work.replace(/\r?\n/g, eol)
   }
-  let rx0 = new RegExp(`${eol}(${eol}*)`, "g")
-  if (parseMode === undefined || parseMode === true) {
-      work = work
+  if (rubyMode === "parse") {
+    work = work
     .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
     .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)《(.+?)》/g, '<ruby>$1<rt>$2</rt></ruby>')
     .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)\(([\u3040-\u309F\u30A0-\u30FF]+?)\)/g, '<ruby>$1<rt>$2</rt></ruby>')
     .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)（([\u3040-\u309F\u30A0-\u30FF]+?)）/g, '<ruby>$1<rt>$2</rt></ruby>')
-    .replace(/[|｜]《(.+?)》/g, '《$1》')
-    .replace(/[|｜]\((.+?)\)/g, '($1)')
-    .replace(/[|｜]（(.+?)）/g, '（$1）')
+    .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, '$1$2$3')
     .replace(/#(.+?)__(.+?)__#/g, `<ruby>$1<rt>$2</rt></ruby>`)
+  } else if (rubyMode === "delete") {
+    work = work
+    .replace(/[|｜](.+?)《(.+?)》/g, `$1`)
+    .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)《(.+?)》/g, '$1')
+    .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)\(([\u3040-\u309F\u30A0-\u30FF]+?)\)/g, '$1')
+    .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)（([\u3040-\u309F\u30A0-\u30FF]+?)）/g, '$1')
+    .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, '$1$2$3')
+    .replace(/#(.+?)__(.+?)__#/g, `$1`)
   }
+  let rx0 = new RegExp(`(?<![」）${eol}])${eol}(?![「（${eol}])(?:([^「（　])|　*)(.*)`, "g")
   if (newLineMode === "few") {
     work = work
-    .replace(rx0, "$1")
+    .replace(rx0, "$2")
   }
   return work
   .split(eol)

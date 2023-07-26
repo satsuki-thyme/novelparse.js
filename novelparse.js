@@ -42,7 +42,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
   async function procNewLine(src) {
     let prntStart = parenthesis.map(rly => rly = rly[0]).join(``)
     let prntEnd = parenthesis.map(rly => rly = rly[1]).join(``)
-    let rxPrnt0 = new RegExp(`[${prntStart}]`)
+    let rxPrnt0 = new RegExp(`(?<![　 ])[${prntStart}]`)
     let rxPrnt1 = new RegExp(`[${prntEnd}]`)
     if (newLineMode === `normal`) {
       return src
@@ -128,7 +128,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               fn()
             }
             /*
-              mon paragraph
+              non paragraph
             */
             if (notLast && prnt1stStart === `` && /^$/.test(work[i])) {
               work[i] = `${hol}<p><br></p>`

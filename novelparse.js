@@ -1,7 +1,7 @@
 function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput) {
   /*
 
-    # varinPrntle
+    # varinParenthesisle
 
   */
   // src
@@ -58,9 +58,8 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
     async function procFew(work) {
       return new Promise(resolve => {
         let i = 0
-        let inPrgr = false // in the paragraph
-        let inPrnt = false // in the parenthesis
-        let notLast = true
+        let inParagraph = false // in the paragraph
+        let inParenthesis = false // in the parenthesis
         fn()
         function fn(prnt1stStartInherited) {
           let hol = i !== 0 ? eol : `` // head of line
@@ -68,129 +67,134 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
           let prnt1stEnd = prnt1stStart !== `` ? parenthesis.filter(rly => rly[0] === prnt1stStart)[0][1] : ``
           let rxPrnt1stStart = new RegExp(`${prnt1stStart}`)
           let rxPrnt1stEnd = new RegExp(`${prnt1stEnd}`)
-          if (i === work.length - 1) {
-            notLast = false
+          if (i !== work.length - 1) {
+            proc(true)
           }
-          /*
-
-            in the paragraph
-
-          */
-          if (inPrgr && !inPrnt) {
-            /*
-              the paragraph continue
-            */
-            if (notLast && /^[　 ]*.+$/.test(work[i + 1])) {
-              work[i] = `${work[i].replace(/^[　 ]*/, "")}`
-              // inPrgr = true
-              i++
-              fn()
-            }
-            /*
-              the paragraph end, not start
-            */
-            if (notLast && /^$/.test(work[i + 1])) {
-              work[i] = `${work[i].replace(/^[　 ]*/, "")}</p>`
-              inPrgr = false
-              i++
-              fn()
-            }
-            /*
-              the end of text
-            */
-            if (!notLast) {
-              work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-              resolve(work)
-            }
+          else {
+            proc(false)
           }
-          /*
+          function proc(notLast) {
+            /*
 
-            not in the paragraph, not in the parenthesis
+              in the paragraph
 
-          */
-          if (!inPrgr && !inPrnt) {
-            /*
-              the paragraph start, not end
             */
-            if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^　/.test(work[i + 1])) {
-              work[i] = `${hol}<p>${work[i]}`
-              inPrgr = true
-              i++
-              fn(prnt1stStart)
+            if (inParagraph && !inParenthesis) {
+              /*
+                the paragraph continue
+              */
+              if (notLast && /^[　 ]*.+$/.test(work[i + 1])) {
+                work[i] = `${work[i].replace(/^[　 ]*/, "")}`
+                // inParagraph = true
+                i++
+                fn()
+              }
+              /*
+                the paragraph end, not start
+              */
+              else if (notLast && /^$/.test(work[i + 1])) {
+                work[i] = `${work[i].replace(/^[　 ]*/, "")}</p>`
+                inParagraph = false
+                i++
+                fn()
+              }
+              /*
+                the end of text
+              */
+              else if (!notLast) {
+                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
+                resolve(work)
+              }
             }
             /*
-              the paragraph start, end
-            */
-            if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^$/.test(work[i + 1])) {
-              work[i] = `${hol}<p>${work[i]}</p>`
-              // inPrgr = true & false
-              i++
-              fn()
-            }
-            /*
-              non paragraph
-            */
-            if (notLast && prnt1stStart === `` && /^$/.test(work[i])) {
-              work[i] = `${hol}<p><br></p>`
-              i++
-              fn()
-            }
-            /*
-              the parenthesis start, end
-            */
-            if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
-              work[i] = `${hol}<p>${work[i]}</p>`
-              // inPrnt = true & false
-              i++
-              fn()
-            }
-            /*
-              the parenthesis start, not end
-            */
-            if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) >= work[i].search(rxPrnt1stEnd)) {
-              work[i] = `${hol}<p>${work[i]}`
-              inPrnt = true
-              i++
-              fn(prnt1stStart)
-            }
-            /*
-              the end of text
-            */
-            if (!notLast) {
-              work[i] = `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`
-              resolve(work)
-            }
-          }
-          /*
 
-            in the parenthesis
+              not in the paragraph, not in the parenthesis
 
-          */
-          if (!inPrgr && inPrnt) {
-            /*
-              the parenthesis end, not start
             */
-            if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
-              work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-              inPrnt = false
-              i++
-              fn()
+            else if (!inParagraph && !inParenthesis) {
+              /*
+                the paragraph start, not end
+              */
+              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^　/.test(work[i + 1])) {
+                work[i] = `${hol}<p>${work[i]}`
+                inParagraph = true
+                i++
+                fn(prnt1stStart)
+              }
+              /*
+                the paragraph start, end
+              */
+              else if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^$/.test(work[i + 1])) {
+                work[i] = `${hol}<p>${work[i]}</p>`
+                // inParagraph = true & false
+                i++
+                fn()
+              }
+              /*
+                non paragraph
+              */
+              else if (notLast && prnt1stStart === `` && /^$/.test(work[i])) {
+                work[i] = `${hol}<p><br></p>`
+                i++
+                fn()
+              }
+              /*
+                the parenthesis start, end
+              */
+              else if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
+                work[i] = `${hol}<p>${work[i]}</p>`
+                // inParenthesis = true & false
+                i++
+                fn()
+              }
+              /*
+                the parenthesis start, not end
+              */
+              else if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) >= work[i].search(rxPrnt1stEnd)) {
+                work[i] = `${hol}<p>${work[i]}`
+                inParenthesis = true
+                i++
+                fn(prnt1stStart)
+              }
+              /*
+                the end of text
+              */
+              else if (!notLast) {
+                work[i] = `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`
+                resolve(work)
+              }
             }
             /*
-              the parenthesis continue
+
+              in the parenthesis
+
             */
-            if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < 0 && work[i].search(rxPrnt1stEnd) < 0) {
-              work[i] = `${work[i].replace(/^[　 ]*/, ``)}`
-              // inPrnt = true
-              i++
-              fn(prnt1stStart)
-            }
-            /*
-              the end of text
-            */
-            if (!notLast) {
-              work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-              resolve(work)
+            else if (!inParagraph && inParenthesis) {
+              /*
+                the parenthesis end, not start
+              */
+              if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
+                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
+                inParenthesis = false
+                i++
+                fn()
+              }
+              /*
+                the parenthesis continue
+              */
+              if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < 0 && work[i].search(rxPrnt1stEnd) < 0) {
+                work[i] = `${work[i].replace(/^[　 ]*/, ``)}`
+                // inParenthesis = true
+                i++
+                fn(prnt1stStart)
+              }
+              /*
+                the end of text
+              */
+              if (!notLast) {
+                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
+                resolve(work)
+              }
             }
           }
         }

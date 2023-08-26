@@ -115,7 +115,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the paragraph start, not end
               */
-              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^　/.test(work[i + 1])) {
+              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^　?/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++

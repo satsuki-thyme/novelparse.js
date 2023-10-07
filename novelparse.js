@@ -83,7 +83,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the paragraph continue
               */
-              if (notLast && /^[　 ]*.+$/.test(work[i + 1])) {
+              if (notLast && /^.+$/.test(work[i + 1])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, "")}`
                 // inParagraph = true
                 i++
@@ -105,6 +105,10 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
                 resolve(work)
               }
+              else {
+                i++
+                fn()
+              }
             }
             /*
 
@@ -115,7 +119,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the paragraph start, not end
               */
-              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^　/.test(work[i + 1])) {
+              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && !/^$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++
@@ -163,6 +167,11 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 work[i] = `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`
                 resolve(work)
               }
+              else {
+                console.log(`想定外の入力がありました`)
+                i++
+                fn()
+              }
             }
             /*
 
@@ -195,6 +204,11 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
                 resolve(work)
               }
+            }
+            else {
+              console.log(`想定外の入力がありました`)
+              i++
+              fn()
             }
           }
         }

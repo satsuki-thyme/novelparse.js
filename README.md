@@ -2,14 +2,10 @@
 ウェブ小説の文書を HTML に変換する JavaScript のライブラリです。
 
 ## 目次
-- novelparse.js  
-  ライブラリ本体
--  novelparse.min.js  
-  ライブラリ本体、圧縮版
--  sample.html  
-  使い方のサンプル
--  novelparse.html  
-  使い方のサンプル、応用編
+- novelparse.js: ライブラリ本体
+- novelparse.min.js: ライブラリ本体（圧縮版）
+- sample.html: 使い方のサンプル
+- novelparse.html: 使い方のサンプル（応用編）
 
 ## 説明
 - ウェブ小説の書き方、ウェブ小説の HTML 化を再現します

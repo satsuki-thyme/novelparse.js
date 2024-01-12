@@ -5,25 +5,21 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
 
   */
   // src
-  let src = srcInput === undefined ? "" : srcInput
+  let src = srcInput === undefined ? `` : srcInput
   // new line mode
-  let newLineMode = newLineModeInput === undefined ? "normal" : newLineModeInput
+  let newLineMode = newLineModeInput === undefined ? `normal` : newLineModeInput
   // ruby mode
-  let rubyMode = rubyModeInput === undefined ? "parse" : rubyModeInput
+  let rubyMode = rubyModeInput === undefined ? `parse` : rubyModeInput
   // parenthesis
-  let parenthesis = parenthesisInput === undefined ? [["「", "」"], ["『", "』"], ["（", "）"]] : parenthesisInput
+  let parenthesis = parenthesisInput === undefined ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : parenthesisInput
   // decide the value what is end of line
-  let eol = ""
-  let newlineRn = src.match(/\r\n/)
-  let newlineN = src.match(/(?<!\r)\n/)
-  if (newlineRn && newlineN && newlineRn.length > newlineN.length) {
-    eol = "\r\n"
-    src.replace(/\r?\n/g, eol)
+  let eols = {
+    "n": (src.match(/(?<!\r)\n/g) || []).length,
+    "r": (src.match(/\r(?!\n)/g) || []).length,
+    "rn": (src.match(/\r\n/g) || []).length
   }
-  else {
-    eol = "\n"
-    src.replace(/\r?\n/g, eol)
-  }
+  let eol = eols.n >= eols.r ? eols.n >= eols.rn ? `\n` : `\r\n` : eols.r <= eols.rn ? `\r\n` : `\r`
+  src = src.replace(/\r?\n|\r(?!\n)/g, eol)
   /*
 
     execute

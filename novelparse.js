@@ -36,14 +36,12 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
     ## new line mode
   */
   async function procNewLine(src) {
-    let prntStart = parenthesis.map(rly => rly = rly[0]).join(``)
-    let prntEnd = parenthesis.map(rly => rly = rly[1]).join(``)
-    let rxPrnt0 = new RegExp(`^(?<![　 ])[${prntStart}]`)
-    let rxPrnt1 = new RegExp(`[${prntEnd}]$`)
+    let parenthesisStart = parenthesis.map(rly => rly[0]).join(``)
+    let reParenthesis0 = new RegExp(`^(?<![　 ])[${parenthesisStart}]`)
     if (newLineMode === `normal`) {
       return src
       .split(eol)
-      .map(rly => rly = rly.replace(/^(.+)$/, `<p>$1</p>`).replace(/^$/, `<p><br></p>`))
+      .map(rly => rly.replace(/^(.+)$/, `<p>$1</p>`).replace(/^$/, `<p><br></p>`))
     }
     if (newLineMode === `few`) {
       return procFew(src.split(eol))
@@ -57,12 +55,12 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
         let inParagraph = false // in the paragraph
         let inParenthesis = false // in the parenthesis
         fn()
-        function fn(prnt1stStartInherited) {
+        function fn(parenthesisStartInherited) {
           let hol = i !== 0 ? eol : `` // head of line
-          let prnt1stStart = prnt1stStartInherited !== undefined ? prnt1stStartInherited : rxPrnt0.test(work[i]) ? work[i].match(rxPrnt0)[0] : ``
-          let prnt1stEnd = prnt1stStart !== `` ? parenthesis.filter(rly => rly[0] === prnt1stStart)[0][1] : ``
-          let rxPrnt1stStart = new RegExp(`${prnt1stStart}`)
-          let rxPrnt1stEnd = new RegExp(`${prnt1stEnd}`)
+          let parenthesisStart = parenthesisStartInherited !== undefined ? parenthesisStartInherited : reParenthesis0.test(work[i]) ? work[i].match(reParenthesis0)[0] : ``
+          let parenthesisEnd = parenthesisStart !== `` ? parenthesis.filter(rly => rly[0] === parenthesisStart)[0][1] : ``
+          let reParenthesisStart = new RegExp(`^${parenthesisStart}`)
+          let reParenthesisEnd = new RegExp(`${parenthesisEnd}$`)
           if (i !== work.length - 1) {
             proc(true)
           }
@@ -106,25 +104,29 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 fn()
               }
             }
-            /*
-
-              not in the paragraph, not in the parenthesis
-
-            */
+/*
+ ##    ##    ########  ########   ######                 ##    ##    ########  ########  ##    ## 
+ ###   ##    ##     ## ##     ## ##    ##                ###   ##    ##     ## ##     ## ###   ## 
+ ####  ##    ##     ## ##     ## ##                      ####  ##    ##     ## ##     ## ####  ## 
+ ## ## ##    ########  ########  ##   ####    #######    ## ## ##    ########  ########  ## ## ## 
+ ##  ####    ##        ##   ##   ##    ##                ##  ####    ##        ##   ##   ##  #### 
+ ##   ###    ##        ##    ##  ##    ##                ##   ###    ##        ##    ##  ##   ### 
+ ##    ##    ##        ##     ##  ######                 ##    ##    ##        ##     ## ##    ## 
+*/
             else if (!inParagraph && !inParenthesis) {
               /*
                 the paragraph start, not end
               */
-              if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && !/^$/.test(work[i + 1])) {
+              if (notLast && parenthesisStart === `` && !/^$/.test(work[i]) && !/^$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++
-                fn(prnt1stStart)
+                fn(parenthesisStart)
               }
               /*
                 the paragraph start, end
               */
-              else if (notLast && prnt1stStart === `` && !/^$/.test(work[i]) && /^$/.test(work[i + 1])) {
+              else if (notLast && parenthesisStart === `` && !/^$/.test(work[i]) && /^$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParagraph = true & false
                 i++
@@ -133,7 +135,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 non paragraph
               */
-              else if (notLast && prnt1stStart === `` && /^$/.test(work[i])) {
+              else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
                 work[i] = `${hol}<p><br></p>`
                 i++
                 fn()
@@ -141,7 +143,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the parenthesis start, end
               */
-              else if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
+              else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) < work[i].search(reParenthesisEnd)) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParenthesis = true & false
                 i++
@@ -150,11 +152,11 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the parenthesis start, not end
               */
-              else if (notLast && prnt1stStart !== `` && !/^$/.test(work[i]) && work[i].search(rxPrnt1stStart) >= work[i].search(rxPrnt1stEnd)) {
+              else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) >= work[i].search(reParenthesisEnd)) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParenthesis = true
                 i++
-                fn(prnt1stStart)
+                fn(parenthesisStart)
               }
               /*
                 the end of text
@@ -171,14 +173,14 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
             }
             /*
 
-              in the parenthesis
+              not in the paragraph, in the parenthesis
 
             */
             else if (!inParagraph && inParenthesis) {
               /*
-                the parenthesis end, not start
+                the parenthesis end
               */
-              if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < work[i].search(rxPrnt1stEnd)) {
+              if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && reParenthesisEnd.test(work[i])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
                 inParenthesis = false
                 i++
@@ -187,11 +189,11 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the parenthesis continue
               */
-              if (notLast && prnt1stStart !== `` && work[i].search(rxPrnt1stStart) < 0 && work[i].search(rxPrnt1stEnd) < 0) {
+              if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && !reParenthesisEnd.test(work[i])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}`
                 // inParenthesis = true
                 i++
-                fn(prnt1stStart)
+                fn(parenthesisStart)
               }
               /*
                 the end of text

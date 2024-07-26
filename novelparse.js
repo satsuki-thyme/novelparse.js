@@ -121,7 +121,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the paragraph start, not end
               */
-              if (notLast && parenthesisStart === `` && /^[　 ].*$/.test(work[i]) && /^[　 ].*$/.test(work[i + 1])) {
+              if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ].*$/.test(work[i]) && /^(?<!\\)[　 ].*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++
@@ -130,7 +130,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 the paragraph start & end
               */
-              else if (notLast && parenthesisStart === `` && /^[　 ].*$/.test(work[i]) && !/^[　 ].*$/.test(work[i + 1])) {
+              else if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ].*$/.test(work[i]) && !/^(?<!\\)[　 ].*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParagraph = true & false
                 i++
@@ -147,13 +147,13 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               /*
                 not the paragraph, but anything exitsts
               */
-                else if (notLast && parenthesisStart === `` && /^[^　 ].*$/.test(work[i])) {
-                  work[i] = `${hol}<p>${work[i]}</p>`
+                else if (notLast && parenthesisStart === `` && /^([^　 ]|(?<=\\)[　 ]).*$/.test(work[i])) {
+                  work[i] = `${hol}<p>${work[i].replace(/^\\/, ``)}</p>`
                   i++
                   fn()
                 }
                   /*
-                the parenthesis start, end
+                the parenthesis start & end
               */
               else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) < work[i].search(reParenthesisEnd)) {
                 work[i] = `${hol}<p>${work[i]}</p>`
@@ -171,7 +171,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 fn(parenthesisStart)
               }
               /*
-                the end of text
+                the end of the text
               */
               else if (!notLast) {
                 work[i] = `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`

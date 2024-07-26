@@ -68,11 +68,15 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
             proc(false)
           }
           function proc(notLast) {
-            /*
-
-              in the paragraph
-
-            */
+/*
+ #### ##    ##    ########  ########   ######                 ##    ##  #######     ########  ########  ##    ## 
+  ##  ###   ##    ##     ## ##     ## ##    ##                ###   ## ##     ##    ##     ## ##     ## ###   ## 
+  ##  ####  ##    ##     ## ##     ## ##                      ####  ## ##     ##    ##     ## ##     ## ####  ## 
+  ##  ## ## ##    ########  ########  ##   ####    #######    ## ## ## ##     ##    ########  ########  ## ## ## 
+  ##  ##  ####    ##        ##   ##   ##    ##                ##  #### ##     ##    ##        ##   ##   ##  #### 
+  ##  ##   ###    ##        ##    ##  ##    ##                ##   ### ##     ##    ##        ##    ##  ##   ### 
+ #### ##    ##    ##        ##     ##  ######                 ##    ##  #######     ##        ##     ## ##    ## 
+*/
             if (inParagraph && !inParenthesis) {
               /*
                 the paragraph continue
@@ -105,42 +109,50 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               }
             }
 /*
- ##    ##    ########  ########   ######                 ##    ##    ########  ########  ##    ## 
- ###   ##    ##     ## ##     ## ##    ##                ###   ##    ##     ## ##     ## ###   ## 
- ####  ##    ##     ## ##     ## ##                      ####  ##    ##     ## ##     ## ####  ## 
- ## ## ##    ########  ########  ##   ####    #######    ## ## ##    ########  ########  ## ## ## 
- ##  ####    ##        ##   ##   ##    ##                ##  ####    ##        ##   ##   ##  #### 
- ##   ###    ##        ##    ##  ##    ##                ##   ###    ##        ##    ##  ##   ### 
- ##    ##    ##        ##     ##  ######                 ##    ##    ##        ##     ## ##    ## 
+ ##    ##  #######     ########  ########   ######                 ##    ##  #######     ########  ########  ##    ## 
+ ###   ## ##     ##    ##     ## ##     ## ##    ##                ###   ## ##     ##    ##     ## ##     ## ###   ## 
+ ####  ## ##     ##    ##     ## ##     ## ##                      ####  ## ##     ##    ##     ## ##     ## ####  ## 
+ ## ## ## ##     ##    ########  ########  ##   ####    #######    ## ## ## ##     ##    ########  ########  ## ## ## 
+ ##  #### ##     ##    ##        ##   ##   ##    ##                ##  #### ##     ##    ##        ##   ##   ##  #### 
+ ##   ### ##     ##    ##        ##    ##  ##    ##                ##   ### ##     ##    ##        ##    ##  ##   ### 
+ ##    ##  #######     ##        ##     ##  ######                 ##    ##  #######     ##        ##     ## ##    ## 
 */
             else if (!inParagraph && !inParenthesis) {
               /*
                 the paragraph start, not end
               */
-              if (notLast && parenthesisStart === `` && !/^$/.test(work[i]) && !/^$/.test(work[i + 1])) {
+              if (notLast && parenthesisStart === `` && /^[　 ].*$/.test(work[i]) && /^[　 ].*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++
                 fn(parenthesisStart)
               }
               /*
-                the paragraph start, end
+                the paragraph start & end
               */
-              else if (notLast && parenthesisStart === `` && !/^$/.test(work[i]) && /^$/.test(work[i + 1])) {
+              else if (notLast && parenthesisStart === `` && /^[　 ].*$/.test(work[i]) && !/^[　 ].*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParagraph = true & false
                 i++
                 fn()
               }
               /*
-                non paragraph
+                not the paragraph, and nobody exists
               */
-              else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
-                work[i] = `${hol}<p><br></p>`
-                i++
-                fn()
-              }
+                else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
+                  work[i] = `${hol}<p><br></p>`
+                  i++
+                  fn()
+                }
               /*
+                not the paragraph, but anything exitsts
+              */
+                else if (notLast && parenthesisStart === `` && /^[^　 ].*$/.test(work[i])) {
+                  work[i] = `${hol}<p>${work[i]}</p>`
+                  i++
+                  fn()
+                }
+                  /*
                 the parenthesis start, end
               */
               else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) < work[i].search(reParenthesisEnd)) {
@@ -171,11 +183,15 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
                 fn()
               }
             }
-            /*
-
-              not in the paragraph, in the parenthesis
-
-            */
+/*
+ ##    ##    ########  ########   ######                 #### ##    ##    ########  ########  ##    ## 
+ ###   ##    ##     ## ##     ## ##    ##                 ##  ###   ##    ##     ## ##     ## ###   ## 
+ ####  ##    ##     ## ##     ## ##                       ##  ####  ##    ##     ## ##     ## ####  ## 
+ ## ## ##    ########  ########  ##   ####    #######     ##  ## ## ##    ########  ########  ## ## ## 
+ ##  ####    ##        ##   ##   ##    ##                 ##  ##  ####    ##        ##   ##   ##  #### 
+ ##   ###    ##        ##    ##  ##    ##                 ##  ##   ###    ##        ##    ##  ##   ### 
+ ##    ##    ##        ##     ##  ######                 #### ##    ##    ##        ##     ## ##    ## 
+*/
             else if (!inParagraph && inParenthesis) {
               /*
                 the parenthesis end
@@ -204,6 +220,15 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
               }
             }
             else {
+/*
+ ######## ##        ######  ######## 
+ ##       ##       ##    ## ##       
+ ##       ##       ##       ##       
+ ######   ##        ######  ######   
+ ##       ##             ## ##       
+ ##       ##       ##    ## ##       
+ ######## ########  ######  ######## 
+*/
               console.log(`想定外の入力がありました`)
               i++
               fn()

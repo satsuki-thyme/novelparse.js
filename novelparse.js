@@ -1,4 +1,4 @@
-function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput) {
+function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput, sharpModeInput) {
   /*
 
     # varinParenthesisle
@@ -6,12 +6,14 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
   */
   // src
   let src = srcInput === undefined ? `` : srcInput
-  // new line mode
-  let newLineMode = newLineModeInput === undefined ? `normal` : newLineModeInput
-  // ruby mode
+  // new line treatment
+  let newLineMode = newLineModeInput === undefined ? `unprocessed` : newLineModeInput
+  // ruby treatment
   let rubyMode = rubyModeInput === undefined ? `parse` : rubyModeInput
   // parenthesis
-  let parenthesis = parenthesisInput === undefined ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : parenthesisInput
+  let parenthesis = parenthesisInput === undefined || `normal` ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : parenthesisInput
+  // "#" line treatment
+  let sharpMode = sharpModeInput === undefined ? `unprocessed` : sharpModeInput
   // decide the value what is end of line
   let eols = {
     "n": (src.match(/(?<!\r)\n/g) || []).length,
@@ -19,35 +21,42 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
     "rn": (src.match(/\r\n/g) || []).length
   }
   let eol = eols.n >= eols.r ? eols.n >= eols.rn ? `\n` : `\r\n` : eols.r <= eols.rn ? `\r\n` : `\r`
-  src = src.replace(/\r?\n|\r(?!\n)/g, eol)
+  src = src
+  .split(/\r?\n|\r(?!\n)/)
   /*
 
-    execute
+    # execute
   
   */
   return procNewLine(src)
-  .then(rly => {return procRuby(rly.join(``))})
+  .then(rly => procSharp(rly))
+  .then(rly => procRuby(rly))
   /*
 
     # function
 
   */
-  /*
-    ## new line mode
-  */
+  function procSharp(src) {
+    if (sharpMode === `unprocessed`) {
+      return src
+    }
+    if (sharpMode === `delete`) {
+      return src
+      .filter(e => !/^#+ /.test(e))
+    }
+  }
   async function procNewLine(src) {
     let parenthesisStart = parenthesis.map(rly => rly[0]).join(``)
     let reParenthesis0 = new RegExp(`^(?<![　 ])[${parenthesisStart}]`)
-    if (newLineMode === `normal`) {
+    if (newLineMode === `unprocessed`) {
       return src
-      .split(eol)
       .map(rly => rly.replace(/^(.+)$/, `<p>$1</p>`).replace(/^$/, `<p><br></p>`))
     }
     if (newLineMode === `few`) {
-      return procFew(src.split(eol))
+      return procFew(src)
     }
-    if (newLineMode !== `normal` && newLineMode !== `few`) {
-      return src.split(eol)
+    if (newLineMode !== `unprocessed` && newLineMode !== `few`) {
+      return src
     }
     async function procFew(work) {
       return new Promise(resolve => {
@@ -242,6 +251,8 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput)
     ## ruby mode
   */
   function procRuby(src) {
+    src = src
+    .join(``)
     if (rubyMode === "parse") {
       return src
       .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)

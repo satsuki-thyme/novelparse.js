@@ -1,4 +1,4 @@
-function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput, sharpModeInput) {
+function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput, mdModeInput) {
   /*
 
     # varinParenthesisle
@@ -13,7 +13,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
   // parenthesis
   let parenthesis = parenthesisInput === undefined || `normal` ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : parenthesisInput
   // "#" line treatment
-  let sharpMode = sharpModeInput === undefined ? `unprocessed` : sharpModeInput
+  let mdMode = mdModeInput === undefined ? `unprocessed` : mdModeInput
   // decide the value what is end of line
   let eols = {
     "n": (src.match(/(?<!\r)\n/g) || []).length,
@@ -29,20 +29,20 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
   
   */
   return procNewLine(src)
-  .then(rly => procSharp(rly))
+  .then(rly => procMd(rly))
   .then(rly => procRuby(rly))
   /*
 
     # function
 
   */
-  function procSharp(src) {
-    if (sharpMode === `unprocessed`) {
+  function procMd(src) {
+    if (mdMode === `unprocessed`) {
       return src
     }
-    if (sharpMode === `delete`) {
+    if (mdMode === `delete`) {
       return src
-      .filter(e => !/^#+ /.test(e))
+      .filter(e => !/^#+ |^[ \t]*[\\-+*] |^[ \t]*\d+\. /.test(e))
     }
   }
   async function procNewLine(src) {

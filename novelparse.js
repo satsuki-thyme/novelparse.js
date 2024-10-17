@@ -42,7 +42,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
     }
     if (mdMode === `delete`) {
       return src
-      .filter(e => !/^#+ |^[ \t]*[\\-+*] |^[ \t]*\d+\. /.test(e))
+      .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. /.test(e))
     }
   }
   async function procNewLine(src) {

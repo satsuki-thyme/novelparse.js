@@ -13,7 +13,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
   // parenthesis
   let parenthesis = parenthesisInput === undefined || `normal` ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : parenthesisInput
   // "#" line treatment
-  let mdMode = mdModeInput === undefined ? `unprocessed` : mdModeInput
+  let mdMode = mdModeInput === undefined ? `delete` : mdModeInput
   // decide the value what is end of line
   let eols = {
     "n": (src.match(/(?<!\r)\n/g) || []).length,
@@ -28,15 +28,15 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
     # execute
   
   */
-  return procNewLine(src)
-  .then(rly => procMd(rly))
+  return procMd(src)
+  .then(rly => procNewLine(rly))
   .then(rly => procRuby(rly))
   /*
 
     # function
 
   */
-  function procMd(src) {
+  async function procMd(src) {
     if (mdMode === `unprocessed`) {
       return src
     }

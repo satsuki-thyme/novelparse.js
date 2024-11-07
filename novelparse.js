@@ -41,7 +41,7 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
     }
     if (editingSymbol === `delete`) {
       return src
-      .replace(/\/\*[\s\S]*\*\/(\r?\n|\r(?!\n))/g, ``)
+      .replace(/\/\*[\s\S]*\*\/(\r?\n|\r(?!\n)|$)/g, ``)
       .split(/\r?\n|\r(?!\n)/)
       .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. |^\/\//.test(e))
     }

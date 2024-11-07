@@ -21,8 +21,6 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
     "rn": (src.match(/\r\n/g) || []).length
   }
   let eol = eols.n >= eols.r ? eols.n >= eols.rn ? `\n` : `\r\n` : eols.r <= eols.rn ? `\r\n` : `\r`
-  src = src
-  .split(/\r?\n|\r(?!\n)/)
   /*
 
     # execute
@@ -39,10 +37,13 @@ function novelparse(srcInput, newLineModeInput, rubyModeInput, parenthesisInput,
   async function procMd(src) {
     if (mdMode === `unprocessed`) {
       return src
+      .split(/\r?\n|\r(?!\n)/)
     }
     if (mdMode === `delete`) {
       return src
-      .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. /.test(e))
+      .replace(/\/\*[\s\S]*\*\/(\r?\n|\r(?!\n))/g, ``)
+      .split(/\r?\n|\r(?!\n)/)
+      .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. |^\/\//.test(e))
     }
   }
   async function procNewLine(src) {

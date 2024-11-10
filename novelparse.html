@@ -67,7 +67,7 @@
         elm_container.style.height = elm_container.getBoundingClientRect().height + "px"
         elm_container.style.inset = 0
         elm_textarea.oninput = () => {
-          elm_textarea.value = novelparse(elm_textarea.value, newLineMode)
+          elm_textarea.value = novelparse({"src": elm_textarea.value, "newLineMode": newLineMode})
           elm_textarea.select()
         }
         elm_textarea.onclick = () => {

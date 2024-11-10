@@ -7,7 +7,7 @@ let elm_input = document.getElementById("input")
 let elm_output = document.getElementById("output")
 let elm_reset = document.getElementById("reset")
 elm_input.oninput = () => {
-  elm_output.value = novelparse(elm_input.value)
+  elm_output.value = novelparse({"src": elm_input.value})
   elm_output.select()
 }
 elm_reset.onclick = () => {

@@ -26,16 +26,15 @@ function novelparse(input) {
     # execute
   
   */
-  return procComment(src)
-  .then(rly => procNewLine(rly))
+  return procNewLine(procComment(src))
   .then(rly => procRuby(rly))
   /*
 
     # function
 
   */
-  async function procComment(src) {
-    if (comment === `unprocessed`) {
+  function procComment(src) {
+    if (comment === `unprocessed` || (comment !== `unprocessed` && comment !== `delete-together`)) {
       return src
       .split(/\r?\n|\r(?!\n)/)
     }

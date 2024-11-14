@@ -262,6 +262,15 @@ function novelparse(input) {
       .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, `$1$2$3`)
       .replace(/#(.+?)__(.+?)__#/g, `<ruby>$1<rt>$2</rt></ruby>`)
     }
+    if (rubyMode === "open") {
+      return src
+      .replace(/[|｜].+?《(.+?)》/g, `$1`)
+      .replace(/(?![〜、。〈〉《》「」『』【】〔〕〖〗〘〙〃〆・〓])\p{scx=Han}+《(.+?)》/ug, `$1`)
+      .replace(/(?![〜、。〈〉《》「」『』【】〔〕〖〗〘〙〃〆・〓])\p{scx=Han}+\(((\p{scx=Hira}|\p{scx=Kana})+)\)/ug, `$1`)
+      .replace(/(?![〜、。〈〉《》「」『』【】〔〕〖〗〘〙〃〆・〓])\p{scx=Han}+（((\p{scx=Hira}|\p{scx=Kana})+)）/ug, `$1`)
+      .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, `$1$2$3`)
+      .replace(/#.+?__(.+?)__#/g, `$1`)
+    }
     if (rubyMode === "delete") {
       return src
       .replace(/[|｜](.+?)《(.+?)》/g, `$1`)

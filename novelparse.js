@@ -256,18 +256,18 @@ function novelparse(input) {
     if (rubyMode === "parse") {
       return src
       .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)\(([\u3040-\u309F\u30A0-\u30FF]+?)\)/g, `<ruby>$1<rt>$2</rt></ruby>`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)（([\u3040-\u309F\u30A0-\u30FF]+?)）/g, `<ruby>$1<rt>$2</rt></ruby>`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)《(.+?)》/ug, `<ruby>$1<rt>$2</rt></ruby>`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)\(((\p{scx=Hira}|\p{scx=Kana})+)\)/ug, `<ruby>$1<rt>$2</rt></ruby>`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)（((\p{scx=Hira}|\p{scx=Kana})+)）/ug, `<ruby>$1<rt>$2</rt></ruby>`)
       .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, `$1$2$3`)
       .replace(/#(.+?)__(.+?)__#/g, `<ruby>$1<rt>$2</rt></ruby>`)
     }
     if (rubyMode === "delete") {
       return src
       .replace(/[|｜](.+?)《(.+?)》/g, `$1`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)《(.+?)》/g, `$1`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)\(([\u3040-\u309F\u30A0-\u30FF]+?)\)/g, `$1`)
-      .replace(/([々〇〻\u3400-\u9FFF\uF900-\uFAFF\uD840-\uD87F\uDC00-\uDFFF]+)（([\u3040-\u309F\u30A0-\u30FF]+?)）/g, `$1`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)《(.+?)》/g, `$1`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)\(((\p{scx=Hira}|\p{scx=Kana})+)\)/ug, `$1`)
+      .replace(/((?![「」『』【】《》〈〉〔〕〘〙〖〗。、・々〆〃—〜〄〇〓])\p{scx=Han}+)（((\p{scx=Hira}|\p{scx=Kana})+)）/ug, `$1`)
       .replace(/[|｜]([《\(（])(.+?)([》\)）])/g, `$1$2$3`)
       .replace(/#(.+?)__(.+?)__#/g, `$1`)
     }

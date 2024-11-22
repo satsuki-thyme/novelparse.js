@@ -40,7 +40,7 @@ function novelparse(input) {
     }
     if (comment === `delete-together`) {
       return src
-      .replace(/\/\*[\s\S]*\*\/(\r?\n|\r(?!\n)|$)/g, ``)
+      .replace(/\/\*[\s\S]*?(\*\/|$)/g, ``)
       .split(/\r?\n|\r(?!\n)/)
       .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. |^\/\//.test(e))
     }

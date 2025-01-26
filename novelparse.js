@@ -41,8 +41,9 @@ function novelparse(input) {
     if (comment === `delete-together`) {
       return src
       .replace(/\/\*[\s\S]*?(\*\/|$)/g, ``)
+      .replace(/(^|\r?\n|\r(?!\n))*(#+ |[ \t]*[\-+*] |[ \t]*\d+\. |\/\/).*(\r?\n|\r(?!\n))?/g, ``)
+      .replace(/(\r?\n|\r(?!\n))+$/, ``)
       .split(/\r?\n|\r(?!\n)/)
-      .filter(e => !/^#+ |^[ \t]*[\-+*] |^[ \t]*\d+\. |^\/\//.test(e))
     }
   }
   async function procNewLine(src) {

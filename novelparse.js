@@ -131,7 +131,7 @@ function novelparse(input) {
               /*
                 the paragraph start, not end
               */
-              if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ].*$/.test(work[i]) && /^(?<!\\)[　 ].*$/.test(work[i + 1])) {
+              if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.*$/.test(work[i]) && /^(?<!\\)[　 ]?.*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
                 i++
@@ -140,7 +140,7 @@ function novelparse(input) {
               /*
                 the paragraph start & end
               */
-              else if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ].*$/.test(work[i]) && !/^(?<!\\)[　 ].*$/.test(work[i + 1])) {
+              else if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.*$/.test(work[i]) && !/^(?<!\\)[　 ]?.*$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParagraph = true & false
                 i++
@@ -157,7 +157,7 @@ function novelparse(input) {
               /*
                 not the paragraph, but anything exitsts
               */
-                else if (notLast && parenthesisStart === `` && /^([^　 ]|(?<=\\)[　 ]).*$/.test(work[i])) {
+                else if (notLast && parenthesisStart === `` && /^([^　 ]?|(?<=\\)[　 ]?).*$/.test(work[i])) {
                   work[i] = `${hol}<p>${work[i].replace(/^\\/, ``)}</p>`
                   i++
                   fn()

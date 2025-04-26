@@ -12,7 +12,7 @@ function novelparse(input) {
   let rubyMode = input.rubyMode === undefined ? `parse` : input.rubyMode
   // parenthesis
   let parenthesis = input.parenthesis === undefined || `normal` ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : input.parenthesis
-  // "#" line treatment
+  // "#", "-", "+", "*", ":", "\" line treatment
   let comment = input.comment === undefined ? `delete-together` : input.comment
   // decide the value what is end of line
   let eols = {
@@ -43,6 +43,7 @@ function novelparse(input) {
       .replace(/(?<=(^|\r?\n|\r(?!\n))(#+ |[ \t]*[\-+*] |[ \t]*\d+\. ).*)(\r?\n|\r(?!\n)){2}(?=#+ |[ \t]*[\-+*] |[ \t]*\d+\. )/g, ``)
       .replace(/\/\*[\s\S]*?(\*\/|$)/g, ``)
       .replace(/(?<=^|\r?\n|\r(?!\n))(#+ |[ \t]*[\-+*] |[ \t]*\d+\. |\/\/).*(\r?\n|\r(?!\n))/g, ``)
+      .replace(/(?<=^|\r?\n|\r(?!\n))(?=.*:).*(\r?\n|\r(?!\n))|(?<=^|\r?\n|\r(?!\n))[ \t]*\\.*(\r?\n|\r(?!\n))/g, ``)
       .replace(/^(\r?\n|\r(?!\n))/, ``)
       .split(/\r?\n|\r(?!\n)/)
     }

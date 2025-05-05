@@ -69,6 +69,7 @@ function novelparse(input) {
         let i = 0
         let inParagraph = false // in the paragraph
         let inParenthesis = false // in the parenthesis
+        let blankLine = false
         fn()
         function fn(parenthesisStartInherited) {
           let hol = i !== 0 ? eol : `` // head of line
@@ -99,6 +100,7 @@ function novelparse(input) {
               if (notLast && /^.+$/.test(work[i + 1])) {
                 work[i] = work[i].replace(/^[　 ]*/, ``)
                 // inParagraph = true
+                blankLine = false
                 i++
                 fn()
               }
@@ -108,6 +110,7 @@ function novelparse(input) {
               else if (notLast && /^$/.test(work[i + 1])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
                 inParagraph = false
+                blankLine = false
                 i++
                 fn()
               }
@@ -139,6 +142,7 @@ function novelparse(input) {
               if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.+$/.test(work[i]) && /^(?<!\\)[　 ]?.+$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParagraph = true
+                blankLine = false
                 i++
                 fn(parenthesisStart)
               }
@@ -148,6 +152,7 @@ function novelparse(input) {
               else if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.+$/.test(work[i]) && !/^(?<!\\)[　 ]?.+$/.test(work[i + 1])) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParagraph = true & false
+                blankLine = false
                 i++
                 fn()
               }
@@ -156,9 +161,22 @@ function novelparse(input) {
               */
               else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
                 work[i] = {
-                  "few": `${hol}<p><br></p>`,
-                  "paper": ``
-                }[mode]
+                  "false": {
+                    "false": {
+                      "paper": ``,
+                      "few": `${hol}<p><br></p>`
+                    }[mode],
+                    "true": `${hol}<p><br>`
+                  }[/^$/.test(work[i + 1])],
+                  "true": {
+                    "false": {
+                      "paper": `</p>`,
+                      "few": `<br></p>`
+                    }[mode],
+                    "true": `<br>`
+                  }[/^$/.test(work[i + 1])]
+                }[blankLine]
+                blankLine = true
                 i++
                 fn()
               }
@@ -167,6 +185,7 @@ function novelparse(input) {
               */
               else if (notLast && parenthesisStart === `` && /^([^　 ]?|(?<=\\)[　 ]?).*$/.test(work[i])) {
                 work[i] = `${hol}<p>${work[i].replace(/^\\/, ``)}</p>`
+                blankLine = false
                 i++
                 fn()
               }
@@ -176,6 +195,7 @@ function novelparse(input) {
               else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) < work[i].search(reParenthesisEnd)) {
                 work[i] = `${hol}<p>${work[i]}</p>`
                 // inParenthesis = true & false
+                blankLine = false
                 i++
                 fn()
               }
@@ -185,6 +205,7 @@ function novelparse(input) {
               else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) >= work[i].search(reParenthesisEnd)) {
                 work[i] = `${hol}<p>${work[i]}`
                 inParenthesis = true
+                blankLine = false
                 i++
                 fn(parenthesisStart)
               }
@@ -192,10 +213,7 @@ function novelparse(input) {
                 the end of the text
               */
               else if (!notLast) {
-                work[i] = {
-                  "few": `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`,
-                  "paper": `<p>${work[i].replace(/^[　 ]*/, ``).replace(/(^$)+/, `<br>`)}</p>`
-                }[mode]
+                work[i] = `<p>${work[i].replace(/^[　 ]*/, ``)}</p>`
                 resolve(work)
               }
               else {
@@ -220,6 +238,7 @@ function novelparse(input) {
               if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && reParenthesisEnd.test(work[i])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
                 inParenthesis = false
+                blankLine = false
                 i++
                 fn()
               }
@@ -229,6 +248,7 @@ function novelparse(input) {
               if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && !reParenthesisEnd.test(work[i])) {
                 work[i] = `${work[i].replace(/^[　 ]*/, ``)}`
                 // inParenthesis = true
+                blankLine = false
                 i++
                 fn(parenthesisStart)
               }

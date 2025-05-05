@@ -56,12 +56,15 @@ function novelparse(input) {
       .map(rly => rly.replace(/^(.+)$/, `<p>$1</p>`).replace(/^$/, `<p><br></p>`))
     }
     if (newLineMode === `few`) {
-      return procFew(src)
+      return procFew(src, `few`)
     }
-    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few`)) {
+    if (newLineMode === `paper`) {
+      return procFew(src, `paper`)
+    }
+    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few` && newLineMode !== `paper`)) {
       return src
     }
-    async function procFew(work) {
+    async function procFew(work, mode) {
       return new Promise(resolve => {
         let i = 0
         let inParagraph = false // in the paragraph
@@ -152,7 +155,10 @@ function novelparse(input) {
                 not the paragraph, and nobody exists
               */
               else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
-                work[i] = `${hol}<p><br></p>`
+                work[i] = {
+                  "few": `${hol}<p><br></p>`,
+                  "paper": ``
+                }[mode]
                 i++
                 fn()
               }
@@ -186,7 +192,10 @@ function novelparse(input) {
                 the end of the text
               */
               else if (!notLast) {
-                work[i] = `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`
+                work[i] = {
+                  "few": `<p>${work[i].replace(/^[　 ]*/, ``).replace(/^$/, `<br>`)}</p>`,
+                  "paper": `<p>${work[i].replace(/^[　 ]*/, ``).replace(/(^$)+/, `<br>`)}</p>`
+                }[mode]
                 resolve(work)
               }
               else {

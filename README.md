@@ -20,7 +20,7 @@
 ```
 {
   "src": source,
-  "newLineMode": "normal" or "fer" or "raw",
+  "newLineMode": "normal" or "few" or "alternating" or "paper" or "raw",
   "rubyMode": "parse" or "delete" or "raw",
   "parenthesis": "[['「', '」'], ['（', '）']]" or "normal",
   "comment": "delete-together" or "unprocessed"

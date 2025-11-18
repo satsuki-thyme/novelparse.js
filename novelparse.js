@@ -1,290 +1,163 @@
 function novelparse(input) {
-  /*
 
-    # varinParenthesisle
-
-  */
-  // src
+  // src input
   let src = input.src === undefined ? `` : input.src
-  // new line treatment
+
+  // new line processing option
   let newLineMode = input.newLineMode === undefined ? `normal` : input.newLineMode
-  // ruby treatment
+
+  // ruby processing option
   let rubyMode = input.rubyMode === undefined ? `parse` : input.rubyMode
-  // parenthesis
+
+  // parenthesis assignment option
   let parenthesis = input.parenthesis === undefined || `normal` ? [[`「`, `」`], [`『`, `』`], [`（`, `）`]] : input.parenthesis
-  // "#", "-", "+", "*", ":", "\" line treatment
+
+  // parenthesises of begin
+  let parenBgn = parenthesis.map(e => esc(e[0]))
+
+  // parenthesises of end
+  let parenEnd = parenthesis.map(e => esc(e[1]))
+
+  // "#", "-", "+", "*", ":", "/", "\", "." line processing option
   let comment = input.comment === undefined ? `delete-together` : input.comment
-  // decide the value what is end of line
-  let eols = {
-    "n": (src.match(/(?<!\r)\n/g) || []).length,
-    "r": (src.match(/\r(?!\n)/g) || []).length,
-    "rn": (src.match(/\r\n/g) || []).length
-  }
-  let eol = eols.n >= eols.r ? eols.n >= eols.rn ? `\n` : `\r\n` : eols.r <= eols.rn ? `\r\n` : `\r`
+
+
+
   /*
 
     # execute
   
   */
-  return procNewLine(procComment(src))
-  .then(rly => procRuby(rly))
+  return procNewLine(procComment()).then(v => procRuby(v))
+
+
+
   /*
 
     # function
 
   */
-  function procComment(src) {
+  function procComment() {
     if (comment === `unprocessed` || (comment !== `unprocessed` && comment !== `delete-together`)) {
       return src
-      .split(/\r?\n|\r(?!\n)/)
     }
     if (comment === `delete-together`) {
       return src
-      .replace(/(?<=(^|\r?\n|\r(?!\n))(#+ |[ \t]*[/\+*-] |[ \t]*\d+\. ).*)(\r?\n|\r(?!\n)){2}(?=#+ |[ \t]*[/\+*-] |[ \t]*\d+\. )/g, ``)
-      .replace(/\/\*[\s\S]*?(\*\/|$)/g, ``)
-      .replace(/(?<=^|\r?\n|\r(?!\n))(#+ |[ \t]*[/\+*-] |[ \t]*\d+\. |\/\/).*(\r?\n|\r(?!\n))/g, ``)
-      .replace(/(?<=^|\r?\n|\r(?!\n))(?=.*:).*(\r?\n|\r(?!\n))|(?<=^|\r?\n|\r(?!\n))[ \t]*[/\\].*(\r?\n|\r(?!\n))/g, ``)
-      .replace(/^(\r?\n|\r(?!\n))/, ``)
-      .split(/\r?\n|\r(?!\n)/)
+
+      // programing comment out
+      .replace(/\/\*[\s\S]*?(\*\/|$)|\/\/.*(\r?\n|\r(?!\n))/g, ``)
+
+      // Markdown
+      .replace(/^(#+ |[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))/gm, ``)
+
+      // YAML
+      .replace(/^(?=.*(?!\\).:).*(\r?\n|\r(?!\n))/gm, ``)
+
+      // My comment format
+      .replace(/^[ \t]*[./\\].*(\r?\n|\r(?!\n))/gm, ``)
     }
   }
+
+
+
   async function procNewLine(src) {
-    let parenthesisStart = parenthesis.map(rly => rly[0]).join(``)
-    let reParenthesis0 = new RegExp(`^(?<![　 ])[${parenthesisStart}]`)
     if (newLineMode === `normal`) {
-      return src
-      .map(rly => rly.replace(/^(.+)$/, `<p>$1</p>`).replace(/^$/, `<p><br></p>`))
+      return normal()
     }
     if (newLineMode === `few`) {
-      return procFew(src, `few`)
+      return few()
+    }
+    if (newLineMode === `alternatingBlank`) {
+      return alt()
     }
     if (newLineMode === `paper`) {
-      return procFew(src, `paper`)
+      return paper()
     }
-    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few` && newLineMode !== `paper`)) {
+    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few` && newLineMode !== `alternatingBlank` && newLineMode !== `paper`)) {
       return src
     }
-    async function procFew(work, mode) {
-      return new Promise(resolve => {
-        let i = 0
-        let inParagraph = false // in the paragraph
-        let inParenthesis = false // in the parenthesis
-        let blankLine = false
-        fn()
-        function fn(parenthesisStartInherited) {
-          let hol = i !== 0 ? eol : `` // head of line
-          let parenthesisStart = parenthesisStartInherited !== undefined ? parenthesisStartInherited : reParenthesis0.test(work[i]) ? work[i].match(reParenthesis0)[0] : ``
-          let parenthesisEnd = parenthesisStart !== `` ? parenthesis.filter(rly => rly[0] === parenthesisStart)[0][1] : ``
-          let reParenthesisStart = new RegExp(`^${parenthesisStart}`)
-          let reParenthesisEnd = new RegExp(`${parenthesisEnd}$`)
-          if (i !== work.length - 1) {
-            proc(true)
-          }
-          else {
-            proc(false)
-          }
-          function proc(notLast) {
-            /*
-             #### ##    ##    ########  ########   ######                 ##    ##  #######     ########  ########  ##    ## 
-              ##  ###   ##    ##     ## ##     ## ##    ##                ###   ## ##     ##    ##     ## ##     ## ###   ## 
-              ##  ####  ##    ##     ## ##     ## ##                      ####  ## ##     ##    ##     ## ##     ## ####  ## 
-              ##  ## ## ##    ########  ########  ##   ####    #######    ## ## ## ##     ##    ########  ########  ## ## ## 
-              ##  ##  ####    ##        ##   ##   ##    ##                ##  #### ##     ##    ##        ##   ##   ##  #### 
-              ##  ##   ###    ##        ##    ##  ##    ##                ##   ### ##     ##    ##        ##    ##  ##   ### 
-             #### ##    ##    ##        ##     ##  ######                 ##    ##  #######     ##        ##     ## ##    ## 
-            */
-            if (inParagraph && !inParenthesis) {
-              /*
-                the paragraph continue
-              */
-              if (notLast && /^.+$/.test(work[i + 1])) {
-                work[i] = work[i].replace(/^[　 ]*/, ``)
-                // inParagraph = true
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                the paragraph end, not start
-              */
-              else if (notLast && /^$/.test(work[i + 1])) {
-                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-                inParagraph = false
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                the end of text
-              */
-              else if (!notLast) {
-                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-                resolve(work)
-              }
-              else {
-                i++
-                fn()
-              }
-            }
-            /*
-             ##    ##  #######     ########  ########   ######                 ##    ##  #######     ########  ########  ##    ## 
-             ###   ## ##     ##    ##     ## ##     ## ##    ##                ###   ## ##     ##    ##     ## ##     ## ###   ## 
-             ####  ## ##     ##    ##     ## ##     ## ##                      ####  ## ##     ##    ##     ## ##     ## ####  ## 
-             ## ## ## ##     ##    ########  ########  ##   ####    #######    ## ## ## ##     ##    ########  ########  ## ## ## 
-             ##  #### ##     ##    ##        ##   ##   ##    ##                ##  #### ##     ##    ##        ##   ##   ##  #### 
-             ##   ### ##     ##    ##        ##    ##  ##    ##                ##   ### ##     ##    ##        ##    ##  ##   ### 
-             ##    ##  #######     ##        ##     ##  ######                 ##    ##  #######     ##        ##     ## ##    ## 
-            */
-            else if (!inParagraph && !inParenthesis) {
-              /*
-                the paragraph start, not end
-              */
-              if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.+$/.test(work[i]) && /^(?<!\\)[　 ]?.+$/.test(work[i + 1])) {
-                work[i] = `${hol}<p>${work[i]}`
-                inParagraph = true
-                blankLine = false
-                i++
-                fn(parenthesisStart)
-              }
-              /*
-                the paragraph start & end
-              */
-              else if (notLast && parenthesisStart === `` && /^(?<!\\)[　 ]?.+$/.test(work[i]) && !/^(?<!\\)[　 ]?.+$/.test(work[i + 1])) {
-                work[i] = `${hol}<p>${work[i]}</p>`
-                // inParagraph = true & false
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                not the paragraph, and nobody exists
-              */
-              else if (notLast && parenthesisStart === `` && /^$/.test(work[i])) {
-                work[i] = {
-                  "false": {
-                    "false": {
-                      "paper": ``,
-                      "few": `${hol}<p><br></p>`
-                    }[mode],
-                    "true": `${hol}<p><br>`
-                  }[/^$/.test(work[i + 1])],
-                  "true": {
-                    "false": {
-                      "paper": `</p>`,
-                      "few": `<br></p>`
-                    }[mode],
-                    "true": `<br>`
-                  }[/^$/.test(work[i + 1])]
-                }[blankLine]
-                blankLine = true
-                i++
-                fn()
-              }
-              /*
-                not the paragraph, but anything exitsts
-              */
-              else if (notLast && parenthesisStart === `` && /^([^　 ]?|(?<=\\)[　 ]?).*$/.test(work[i])) {
-                work[i] = `${hol}<p>${work[i].replace(/^\\/, ``)}</p>`
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                the parenthesis start & end
-              */
-              else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) < work[i].search(reParenthesisEnd)) {
-                work[i] = `${hol}<p>${work[i]}</p>`
-                // inParenthesis = true & false
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                the parenthesis start, not end
-              */
-              else if (notLast && parenthesisStart !== `` && !/^$/.test(work[i]) && work[i].search(reParenthesisStart) >= work[i].search(reParenthesisEnd)) {
-                work[i] = `${hol}<p>${work[i]}`
-                inParenthesis = true
-                blankLine = false
-                i++
-                fn(parenthesisStart)
-              }
-              /*
-                the end of the text
-              */
-              else if (!notLast) {
-                work[i] = `<p>${work[i].replace(/^[　 ]*/, ``)}</p>`
-                resolve(work)
-              }
-              else {
-                console.log(`想定外の入力がありました`)
-                i++
-                fn()
-              }
-            }
-            /*
-             ##    ##    ########  ########   ######                 #### ##    ##    ########  ########  ##    ## 
-             ###   ##    ##     ## ##     ## ##    ##                 ##  ###   ##    ##     ## ##     ## ###   ## 
-             ####  ##    ##     ## ##     ## ##                       ##  ####  ##    ##     ## ##     ## ####  ## 
-             ## ## ##    ########  ########  ##   ####    #######     ##  ## ## ##    ########  ########  ## ## ## 
-             ##  ####    ##        ##   ##   ##    ##                 ##  ##  ####    ##        ##   ##   ##  #### 
-             ##   ###    ##        ##    ##  ##    ##                 ##  ##   ###    ##        ##    ##  ##   ### 
-             ##    ##    ##        ##     ##  ######                 #### ##    ##    ##        ##     ## ##    ## 
-            */
-            else if (!inParagraph && inParenthesis) {
-              /*
-                the parenthesis end
-              */
-              if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && reParenthesisEnd.test(work[i])) {
-                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-                inParenthesis = false
-                blankLine = false
-                i++
-                fn()
-              }
-              /*
-                the parenthesis continue
-              */
-              if (notLast && parenthesisStart !== `` && !reParenthesisStart.test(work[i]) && !reParenthesisEnd.test(work[i])) {
-                work[i] = `${work[i].replace(/^[　 ]*/, ``)}`
-                // inParenthesis = true
-                blankLine = false
-                i++
-                fn(parenthesisStart)
-              }
-              /*
-                the end of text
-              */
-              if (!notLast) {
-                work[i] = `${work[i].replace(/^[　 ]*/, ``)}</p>`
-                resolve(work)
-              }
-            }
-            else {
-            /*
-             ######## ##        ######  ######## 
-             ##       ##       ##    ## ##       
-             ##       ##       ##       ##       
-             ######   ##        ######  ######   
-             ##       ##             ## ##       
-             ##       ##       ##    ## ##       
-             ######## ########  ######  ######## 
-            */
-              console.log(`想定外の入力がありました`)
-              i++
-              fn()
-            }
-          }
-        }
-      })
+
+
+
+    function normal() {
+      return src
+      .split(/\r?\n|\r(?!\n)/)
+      .map(e => e.replace(/^([^\r\n]+)$/gm, `<p>$1</p>`).replace(/^$/gm, `<p><br></p>`))
+      .join(`\n`)
+    }
+
+
+
+    function few() {
+      return src
+
+      // 文章の最初に段落を始める
+      .replace(/^/, `<p>`)
+
+      // 3個だけの改行を置換する
+      .replace(new RegExp(`$(\\r?\\n|\\r(?!\\n)){2}(?!\\r?\\n|\\r(?!\\n))`, `gm`), `</p><p><br></p><p>`)
+
+      // 前に括弧終わりがある改行を置換する
+      .replace(new RegExp(`(${parenEnd.join(`|`)})(\\r?\\n|\\r(?!\\n))`, `g`), `$1</p><p>`)
+
+      // 2個以上の改行を置換する
+      .replace(/(\r?\n|\r(?!\n)){2,}/g, m => m.replace(/(\r?\n|\r(?!\n))/g, `<p><br></p>`))
+
+      // 文章の終わりに段落を閉じる
+      .replace(/(?!<\/p>)$/, `</p>`)
+    }
+
+
+
+    function alt() {
+      return src
+
+      // 文章の最初に段落を始める
+      .replace(/^/, `<p>`)
+
+      // 1個だけの改行を置換する
+      .replace(new RegExp(`$(\\r?\\n|\\r(?!\\n))(?!\\r?\\n|\\r(?!\\n))`, `gm`), `</p><p><br></p><p>`)
+
+      // 1個以上の改行を置換する
+      .replace(/(\r?\n|\r(?!\n))+/g, m => m.replace(/(\r?\n|\r(?!\n))/g, `<p><br></p>`))
+
+      // 文章の終わりに段落を閉じる
+      .replace(/(?!<\/p>)$/, `</p>`)
+    }
+
+
+
+    function paper() {
+      return src
+
+      // 文章の最初に段落を始める
+      .replace(/^/, `<p>`)
+
+      // 前に括弧終わりが来ず、次に括弧始まりが来ない2個のみの改行を置換する
+      .replace(new RegExp(`((?!\\r?\\n|\\r(?!\\r)|${parenEnd.join(`|`)}).)(\\r?\\n|\\r(?!\\n)){2}(?!\\r?\\n|\\r(?!\\n)|${parenBgn.join(`|`)})`, `gm`), `$1</p>\n<p>`)
+
+      // 次に括弧始まりが来る2個のみの改行を置換する
+      .replace(new RegExp(`$(\\r?\\n|\\r(?!\\n)){2}(?=${parenBgn.join(`|`)})`, `gm`), `</p>\n<p><br></p>\n<p>`)
+
+      // 前に括弧閉じ、次に括弧始まりが来る1個のみの改行を置換する
+      .replace(new RegExp(`(${parenEnd.join(`|`)})(\\r?\\n|\\r(?!\\n))(?=${parenBgn.join(`|`)})`, `g`), `$1</p>\n<p>`)
+
+      // 前に括弧閉じが来る1個のみの改行を置換する
+      .replace(new RegExp(`(${parenEnd.join(`|`)})(\\r?\\n|\\r(?!\\n))`, `g`), `$1</p>\n<p><br></p>\n<p>`)
+
+      // 文章の終わりに段落を閉じる
+      .replace(/(?!<\/p>)$/, `</p>`)
     }
   }
+
+
+
   /*
-    ## ruby mode
+
+    ruby mode
+
   */
   function procRuby(src) {
-    src = src
-    .join(``)
     if (rubyMode === "parse") {
       return src
       .replace(/[|｜](.+?)《(.+?)》/g, `<ruby>$1<rt>$2</rt></ruby>`)
@@ -314,6 +187,33 @@ function novelparse(input) {
     }
     if (rubyMode === "raw") {
       return src
+    }
+  }
+
+
+
+  /*
+
+    escape
+
+  */
+  function esc(r) {
+    if (typeof r === "string" || r instanceof String) return p(r)
+    else if (Array.isArray(r)) return r.map(r => p(r))
+    else return r
+    function p(r) {
+      return r.replace(/(\/|\\|\^|\$|\*|\+|\?|\.|\(|\)|\[|\]|\{|\})/g, "\\$1")
+    }
+  }
+
+
+
+  function unEsc(r) {
+    if (typeof r === "string" || r instanceof String) return p(r)
+    else if (Array.isArray(r)) return r.map(r => p(r))
+    else return r
+    function p(r) {
+      return r.replace(/\\(\/|\\|\^|\$|\*|\+|\?|\.|\(|\)|\[|\]|\{|\})/g, "$1")
     }
   }
 }

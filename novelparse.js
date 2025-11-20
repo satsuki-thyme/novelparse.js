@@ -1,4 +1,4 @@
-function novelparse(input) {
+async function novelparse(input) {
 
   // src input
   let src = input.src === undefined ? `` : input.src
@@ -28,7 +28,7 @@ function novelparse(input) {
     # execute
   
   */
-  return procNewLine(procComment()).then(v => procRuby(v))
+  return (await procNewLine(procComment()).then(v => procRuby(v))).replace(/\\r|\\n/g, ``)
 
 
 
@@ -45,16 +45,16 @@ function novelparse(input) {
       return src
 
       // programing comment out
-      .replace(/\/\*[\s\S]*?(\*\/|$)|\/\/.*(\r?\n|\r(?!\n))/g, ``)
+      .replace(/\/\*[\s\S]*?(\*\/|$)|\/\/.*(\r?\n|\r(?!\n))+/g, ``)
 
       // Markdown
-      .replace(/^(#+ |[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))/gm, ``)
+      .replace(/^(#+ |[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))+/gm, ``)
 
       // YAML
-      .replace(/^(?=.*(?!\\).:).*(\r?\n|\r(?!\n))/gm, ``)
+      .replace(/^(?=.*(?!\\).:).*(\r?\n|\r(?!\n))+/gm, ``)
 
       // My comment format
-      .replace(/^[ \t]*[./\\].*(\r?\n|\r(?!\n))/gm, ``)
+      .replace(/^[ \t]*[./\\].*(\r?\n|\r(?!\n))+/gm, ``)
     }
   }
 
@@ -67,13 +67,13 @@ function novelparse(input) {
     if (newLineMode === `few`) {
       return few()
     }
-    if (newLineMode === `alternatingBlank`) {
+    if (newLineMode === `alt`) {
       return alt()
     }
     if (newLineMode === `paper`) {
       return paper()
     }
-    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few` && newLineMode !== `alternatingBlank` && newLineMode !== `paper`)) {
+    if (newLineMode === `raw` || (newLineMode !== `normal` && newLineMode !== `few` && newLineMode !== `alt` && newLineMode !== `paper`)) {
       return src
     }
 

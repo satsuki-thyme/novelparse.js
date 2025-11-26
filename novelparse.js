@@ -28,7 +28,7 @@ async function novelparse(input) {
     # execute
   
   */
-  return (await procNewLine(procComment()).then(v => procRuby(v))).replace(/\\r|\\n/g, ``)
+  return (await procNewLine(procComment()).then(v => procRuby(v))).replace(/\r|\n/g, ``)
 
 
 

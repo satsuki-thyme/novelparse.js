@@ -48,7 +48,7 @@ async function novelparse(input) {
       .replace(/\/\*[\s\S]*?(\*\/|$)|\/\/.*(\r?\n|\r(?!\n))+/g, ``)
 
       // Markdown
-      .replace(/^(#+ |[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))+/gm, ``)
+      .replace(/^(#+ *|[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))+/gm, ``)
 
       // YAML
       .replace(/^(?=.*(?!\\).:).*(\r?\n|\r(?!\n))+/gm, ``)

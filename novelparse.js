@@ -51,7 +51,7 @@ async function novelparse(input) {
       .replace(/^(#+ *|[ \t]*[+*-] |[ \t]*\d+\. ).*(\r?\n|\r(?!\n))+/gm, ``)
 
       // YAML
-      .replace(/^(?=.*(?!\\).:).*(\r?\n|\r(?!\n))+/gm, ``)
+      .replace(/^(?=.*(?!\\).:| +).*(\r?\n|\r(?!\n))+/gm, ``)
 
       // My comment format
       .replace(/^[ \t]*[./\\].*(\r?\n|\r(?!\n))+/gm, ``)
